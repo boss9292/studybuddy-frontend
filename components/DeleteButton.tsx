@@ -1,43 +1,71 @@
 "use client";
-
 import { useState } from "react";
-import { deleteDocument, deleteQuiz } from "@/lib/delete";
+import { createClient } from "@supabase/supabase-js";
 
-type Props =
-  | { kind: "document"; id: string; title?: string; onDeleted?: () => void }
-  | { kind: "quiz"; id: string; title?: string; onDeleted?: () => void };
+type Props = {
+  kind: "document" | "quiz";
+  id: string;
+  title?: string | null;
+  onDeleted?: () => void;
+};
 
-export default function DeleteButton(props: Props) {
+export default function DeleteButton({ kind, id, title, onDeleted }: Props) {
   const [busy, setBusy] = useState(false);
-  const label =
-    props.kind === "document" ? "Delete document" : "Delete quiz";
 
-  async function onClick() {
-    if (busy) return;
-    const name = props.title ?? props.id;
-    const ok = window.confirm(`Delete "${name}"? This cannot be undone.`);
-    if (!ok) return;
+  const handle = async () => {
+    if (!confirm(`Delete this ${kind}${title ? `: "${title}"` : ""}?`)) return;
+    setBusy(true);
     try {
-      setBusy(true);
-      if (props.kind === "document") {
-        await deleteDocument(props.id);
-      } else {
-        await deleteQuiz(props.id);
-      }
-      props.onDeleted?.();
+      // 1) Build an absolute base at runtime (even if env was not inlined)
+      const envBase = process.env.NEXT_PUBLIC_API_URL;
+      const runtimeFallback =
+        typeof window !== "undefined" ? "http://127.0.0.1:8000" : "";
+      const base = envBase && envBase.startsWith("http")
+        ? envBase
+        : runtimeFallback;
+
+      // 2) Build absolute URL safely
+      const endpoint = new URL(
+        kind === "document"
+          ? `/library/document/${id}`
+          : `/library/quiz/${id}`,
+        base
+      ).toString();
+
+      // 3) Log once to confirm it’s NOT hitting :3000
+      console.log("[DeleteButton] DELETE", endpoint);
+
+      // 4) Get Supabase JWT (robust)
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { auth: { persistSession: true, autoRefreshToken: true } }
+      );
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) throw new Error("Not signed in");
+
+      const r = await fetch(endpoint, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j?.detail || j?.error || "Delete failed");
+
+      onDeleted?.();
     } catch (e: any) {
       alert(e?.message || "Delete failed");
     } finally {
       setBusy(false);
     }
-  }
+  };
 
   return (
     <button
-      onClick={onClick}
+      onClick={handle}
       disabled={busy}
-      className="text-sm px-3 py-1 rounded-md border border-red-300 text-red-600 hover:bg-red-50 disabled:opacity-50"
-      title={label}
+      className="text-xs px-2 py-1 rounded-md border border-red-300 hover:bg-red-50 disabled:opacity-50"
+      title="Delete"
     >
       {busy ? "Deleting…" : "Delete"}
     </button>
