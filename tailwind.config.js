@@ -6,6 +6,16 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
-  theme: { extend: {} },
-  plugins: [],
+  theme: { extend: {
+    typography: ({ theme }) => ({
+      DEFAULT: {
+        css: {
+          "--tw-prose-body": theme("colors.slate.800"),
+          "--tw-prose-headings": theme("colors.slate.900"),
+          "--tw-prose-bullets": theme("colors.slate.400"),
+        },
+      },
+    }),
+  }},
+  plugins: [require("@tailwindcss/typography")],
 };

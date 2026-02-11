@@ -16,8 +16,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.className} h-full bg-slate-50 text-slate-900 antialiased`}>
         {/* NAVBAR */}
         <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur">
-          <Nav />
-        </header>
+  <Nav />
+</header>
 
         {/* PAGE CONTENT */}
         <main className="mx-auto min-h-[calc(100vh-3.5rem)] max-w-6xl px-4 py-10">

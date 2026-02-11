@@ -1,3 +1,4 @@
+// lib/supabaseBrowser.ts
 import { createClient } from "@supabase/supabase-js";
 
 export function getSupabaseBrowser() {
@@ -8,6 +9,7 @@ export function getSupabaseBrowser() {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      flowType: "pkce",
     },
   });
 }
