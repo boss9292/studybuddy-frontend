@@ -43,8 +43,12 @@ export default function LibraryPage() {
       setDocs(d || []);
       setQuizzes(q || []);
       setStatus("ready");
-    } catch (e: any) {
-      setErr(e?.message || "Failed to load library");
+    } catch (e: unknown) {
+  if (e instanceof Error) {
+    setErr(e.message);
+  } else {
+    setErr("Failed to load library");
+  }
       setStatus("error");
     }
   }, [supabase]);
@@ -82,8 +86,12 @@ export default function LibraryPage() {
     try {
       const url = await getDocUrl(id, "download");
       window.location.href = url;
-    } catch (e: any) {
-      alert(e?.message || "Failed to download PDF");
+    } catch (e: unknown) {
+  if (e instanceof Error) {
+    alert(e.message);
+  } else {
+    alert("Failed to download PDF");
+  }
     }
   };
 

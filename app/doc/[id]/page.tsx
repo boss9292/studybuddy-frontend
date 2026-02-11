@@ -10,7 +10,14 @@ import { exportCsvURL, exportApkgURL } from "@/lib/api";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 
-type Row = { id: string; title: string; summary: string | null; cards_json: any };
+type Row = {
+  id: string;
+  title: string;
+  summary: string | null;
+  cards_json: {
+    cards: Card[];
+  } | null;
+};
 
 /* ---- SAME pipeline helpers as the component (kept here so PDF matches) ---- */
 function baseNormalize(input: string | undefined | null): string {

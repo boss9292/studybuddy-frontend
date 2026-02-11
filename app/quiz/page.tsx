@@ -31,14 +31,18 @@ export default function QuizPage() {
       const res = await buildQuiz({ file, title: file.name, numQuestions: 18 }, token);
       setQs(res.questions);
       setPicked(new Array(res.questions.length).fill(-1));
-    } catch (err: any) {
-      setError(err?.message ?? "Error generating quiz.");
+    } catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError("Error generating quiz.");
+  }
     } finally {
       setLoading(false);
     }
   }
 
-  const onAnswered = (qi: number, choice: number, _correct: boolean) => {
+  const onAnswered = (qi: number, choice: number) => {
     setPicked((prev) => (prev[qi] !== -1 ? prev : prev.with(qi, choice)));
   };
 
@@ -78,7 +82,7 @@ export default function QuizPage() {
 
           <ol className="space-y-4">
             {qs.map((q, i) => (
-              <QuizQuestion key={i} q={q} index={i} onAnswered={(picked, correct) => onAnswered(i, picked, correct)} />
+              <QuizQuestion key={i} q={q} index={i} onAnswered={(picked) => onAnswered(i, picked)} />
             ))}
           </ol>
         </div>

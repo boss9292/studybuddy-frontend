@@ -91,8 +91,12 @@ export default function UploadPage() {
         }
         setCards(parsed);
       }
-    } catch (err: any) {
-      setError(err?.message ?? "Error generating content.");
+    } catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError("Error generating content.");
+  }
     } finally {
       setLoading(false);
       setStatus("");

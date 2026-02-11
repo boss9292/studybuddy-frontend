@@ -6,7 +6,13 @@ import { useParams } from "next/navigation";
 import type { MCQ } from "@/lib/types";
 import QuizQuestion from "@/components/QuizQuestion";
 
-type Row = { id: string; title: string; quiz_json: any };
+type Row = {
+  id: string;
+  title: string;
+  quiz_json: {
+    questions: MCQ[];
+  } | null;
+};
 
 export default function QuizDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +31,7 @@ export default function QuizDetailPage() {
         .eq("id", id)
         .maybeSingle();
       if (!mounted) return;
-      setRow((data as Row) || null);
+      setRow(data ?? null);
 
       try {
         const parsed = data?.quiz_json ? (typeof data.quiz_json === "string" ? JSON.parse(data.quiz_json) : data.quiz_json) : { questions: [] };

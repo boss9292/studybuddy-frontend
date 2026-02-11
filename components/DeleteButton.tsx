@@ -53,8 +53,12 @@ export default function DeleteButton({ kind, id, title, onDeleted }: Props) {
       if (!r.ok) throw new Error(j?.detail || j?.error || "Delete failed");
 
       onDeleted?.();
-    } catch (e: any) {
-      alert(e?.message || "Delete failed");
+    } catch (e: unknown) {
+  if (e instanceof Error) {
+    alert(e.message);
+  } else {
+    alert("Delete failed");
+  }
     } finally {
       setBusy(false);
     }

@@ -4,10 +4,19 @@ import { useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
 
 /** Match GoTrue's "already registered" variants */
-function isAlreadyRegisteredErr(err: any) {
-  const msg = (err?.message || "").toLowerCase();
-  const code = (err?.code || "").toLowerCase();
-  const status = String(err?.status ?? "");
+function isAlreadyRegisteredErr(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+
+  const maybeErr = err as {
+    message?: string;
+    code?: string;
+    status?: number | string;
+  };
+
+  const msg = (maybeErr.message ?? "").toLowerCase();
+  const code = (maybeErr.code ?? "").toLowerCase();
+  const status = String(maybeErr.status ?? "");
+
   return (
     msg.includes("already registered") ||
     msg.includes("already been registered") ||
@@ -20,8 +29,11 @@ function isAlreadyRegisteredErr(err: any) {
   );
 }
 
-function normalizeAuthError(err: any): string {
-  const msg = (err?.message || "").toLowerCase();
+function normalizeAuthError(err: unknown): string {
+  const msg =
+  err instanceof Error && typeof err.message === "string"
+    ? err.message.toLowerCase()
+    : "";
   if (isAlreadyRegisteredErr(err)) {
     return "This email is already registered. Please sign in (or continue with Google if you used it before).";
   }
@@ -31,7 +43,8 @@ function normalizeAuthError(err: any): string {
   if (msg.includes("rate limit")) {
     return "Too many attempts. Please try again in a minute.";
   }
-  return err?.message || "Authentication failed. Please try again.";
+  if (err instanceof Error) return err.message;
+return "Authentication failed. Please try again.";
 }
 
 export default function AuthGate() {
@@ -49,7 +62,7 @@ export default function AuthGate() {
   const [info, setInfo] = useState<string | null>(null);
 
   useEffect(() => {
-    let alive = true;
+    const alive = true;
     supabase.auth.getSession().then(({ data }) => alive && setAuthed(!!data.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setAuthed(!!session);
@@ -111,7 +124,8 @@ export default function AuthGate() {
         }
 
         // 2) Supabase nuance: success but user.identities = [] → already exists
-        const identities = (data?.user as any)?.identities ?? [];
+        const identities =
+  (data?.user as { identities?: unknown[] } | null)?.identities ?? [];
         if (Array.isArray(identities) && identities.length === 0) {
           setIsRegister(false);
           setError(
@@ -144,8 +158,8 @@ export default function AuthGate() {
 
       setOpen(false);
       if (typeof window !== "undefined") window.location.replace("/upload");
-    } catch (err: any) {
-      setError(normalizeAuthError(err));
+    } catch (err: unknown) {
+  setError(normalizeAuthError(err));
     } finally {
       setBusy(false);
     }
