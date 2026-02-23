@@ -230,16 +230,16 @@ export default function LandingPage() {
       <section className="stats-section">
         <div className="stats-grid">
           <div className="stat-item">
-            <div className="stat-number">1K+</div>
+            <div className="stat-number">500+</div>
             <div className="stat-label">Students helped</div>
           </div>
           <div className="stat-item">
-            <div className="stat-number">95%</div>
+            <div className="stat-number">100%</div>
             <div className="stat-label">Better grades reported</div>
           </div>
           <div className="stat-item">
-            <div className="stat-number">50K+</div>
-            <div className="stat-label">Flashcards created</div>
+            <div className="stat-number">2K+</div>
+            <div className="stat-label">Summaries created</div>
           </div>
         </div>
       </section>
