@@ -1,36 +1,126 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StudyBuddy — Frontend
 
-## Getting Started
+> AI-powered study platform serving 500+ active users. Upload your notes and get instant AI-generated summaries, quizzes, flashcards, and concept maps.
 
-First, run the development server:
+🌐 **Live at [studybuddy.app](https://studybuddy-frontend-theta.vercel.app/)**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## What It Does
+
+StudyBuddy lets students upload course materials and instantly generate study resources powered by AI. The platform supports full class management, syllabus parsing, calendar integration, and multiple study formats — all in a clean, responsive interface.
+
+**Core features:**
+- Upload PDFs and notes to get AI-generated summaries and study guides
+- Generate quizzes with multiple choice questions from any document
+- Flashcard generation for active recall practice
+- Concept map visualization showing relationships between topics
+- Syllabus parsing to extract and organize course structure
+- iCalendar (.ics) import for assignment and exam tracking
+- Class and document library management with delete functionality
+- Freemium model with usage-gated AI generation
+- Supabase authentication with persistent user sessions
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router) |
+| UI | React 19, TypeScript |
+| Styling | Tailwind CSS 4, Tailwind Typography |
+| Auth & DB | Supabase (PostgreSQL + Auth) |
+| Content Rendering | React Markdown, Marked, DOMPurify |
+| Validation | Zod |
+| Deployment | Vercel |
+
+---
+
+## Project Structure
+
+```
+/
+├── components/
+│   ├── AuthGate.tsx          # Authentication wrapper
+│   ├── CalendarView.tsx      # Assignment/exam calendar
+│   ├── ConceptMap.tsx        # Knowledge graph visualization
+│   ├── DeleteButton.tsx      # Content deletion with confirmation
+│   ├── FileDrop.tsx          # Drag and drop file upload
+│   ├── FlashcardList.tsx     # Flashcard study interface
+│   ├── ICalendarUploader.tsx # .ics file import for deadlines
+│   ├── LandingPage.tsx       # Marketing landing page
+│   ├── MarkdownView.tsx      # Rendered study guide display
+│   ├── Nav.tsx               # Navigation with auth state
+│   ├── QuizQuestion.tsx      # Interactive quiz component
+│   ├── SideBar.tsx           # Class and document navigation
+│   ├── StudyGuide.tsx        # AI summary display
+│   └── SyllabusUploader.tsx  # Syllabus parsing interface
+├── lib/
+│   ├── api.ts                # Backend API client
+│   ├── supabase.ts           # Supabase server client
+│   ├── supabaseBrowser.ts    # Supabase browser client
+│   ├── types.ts              # Shared TypeScript types
+│   ├── delete.ts             # Delete operations
+│   └── utils.ts              # Shared utilities
+├── quiz/
+│   ├── page.tsx              # Quiz list page
+│   └── [id]/page.tsx         # Individual quiz page
+└── public/                   # Static assets
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture Highlights
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Authentication:** Supabase Auth with JWT sessions. AuthGate component wraps protected routes and redirects unauthenticated users. Separate server and browser Supabase clients handle SSR and client-side auth correctly.
 
-## Learn More
+**API Communication:** All AI generation requests route through the Python FastAPI backend. The `lib/api.ts` client handles request formatting, error handling, and auth header injection.
 
-To learn more about Next.js, take a look at the following resources:
+**Content Security:** DOMPurify sanitizes all AI-generated markdown before rendering to prevent XSS. `rehype-sanitize` provides additional sanitization in the React Markdown pipeline.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Type Safety:** Zod schemas validate API responses at runtime. Shared TypeScript types in `lib/types.ts` ensure consistency across components.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Local Development
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Prerequisites
+- Node.js 18+
+- Supabase project (for auth and database)
+- StudyBuddy backend running locally (see [backend repo](https://github.com/MingLincs/studybuddy-backend))
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Setup
+
+```bash
+# Clone the repo
+git clone https://github.com/MingLincs/studybuddy-frontend.git
+cd studybuddy-frontend
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.local.example .env.local
+# Add your Supabase URL, anon key, and backend API URL
+
+# Start development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000)
+
+### Environment Variables
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+---
+
+## Related
+
+- **Backend:** [studybuddy-backend](https://github.com/MingLincs/studybuddy-backend) — FastAPI + Python AI processing engine
+- **Live App:** [studybuddy.app](https://studybuddy.app)
